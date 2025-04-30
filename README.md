@@ -70,7 +70,8 @@ Step1. Install YOLOX from source.
 ```shell
 git clone git@github.com:Megvii-BaseDetection/YOLOX.git
 cd YOLOX
-pip3 install -v -e .  # or  python3 setup.py develop
+# pip3 install -v -e .  # or  python3 setup.py develop
+pip3 install -v -e . --no-build-isolation # If using virtualenv
 ```
 
 </details>
