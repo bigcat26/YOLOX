@@ -132,9 +132,12 @@ class COCOEvaluator:
             summary (sr): summary info of evaluation.
         """
         # TODO half to amp_test
-        tensor_type = torch.cuda.HalfTensor if half else torch.cuda.FloatTensor
+        if torch.cuda.is_available():
+            tensor_type = torch.cuda.HalfTensor if half else torch.cuda.FloatTensor
+        else:
+            tensor_type = torch.FloatTensor
         model = model.eval()
-        if half:
+        if half and torch.cuda.is_available():
             model = model.half()
         ids = []
         data_list = []
@@ -186,7 +189,7 @@ class COCOEvaluator:
             data_list.extend(data_list_elem)
             output_data.update(image_wise_data)
 
-        statistics = torch.cuda.FloatTensor([inference_time, nms_time, n_samples])
+        statistics = torch.tensor([inference_time, nms_time, n_samples], dtype=torch.float32, device='cuda' if torch.cuda.is_available() else 'cpu')
         if distributed:
             # different process/device might have different speed,
             # to make sure the process will not be stucked, sync func is used here.

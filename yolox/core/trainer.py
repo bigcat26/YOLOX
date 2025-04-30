@@ -46,9 +46,14 @@ class Trainer:
         self.amp_training = args.fp16
         self.scaler = torch.cuda.amp.GradScaler(enabled=args.fp16)
         self.is_distributed = get_world_size() > 1
-        self.rank = get_rank()
-        self.local_rank = get_local_rank()
-        self.device = "cuda:{}".format(self.local_rank)
+        if args.cpu:
+            self.rank = 0
+            self.local_rank = 0
+            self.device = "cpu"
+        else:
+            self.rank = get_rank()
+            self.local_rank = get_local_rank()
+            self.device = "cuda:{}".format(self.local_rank)
         self.use_model_ema = exp.ema
         self.save_history_ckpt = exp.save_history_ckpt
 
@@ -133,7 +138,9 @@ class Trainer:
         logger.info("exp value:\n{}".format(self.exp))
 
         # model related init
-        torch.cuda.set_device(self.local_rank)
+        if not self.args.cpu:
+            torch.cuda.set_device(self.local_rank)
+
         model = self.exp.get_model()
         logger.info(
             "Model Summary: {}".format(get_model_info(model, self.exp.test_size))
@@ -155,7 +162,7 @@ class Trainer:
             cache_img=self.args.cache,
         )
         logger.info("init prefetcher, this might take one minute or less...")
-        self.prefetcher = DataPrefetcher(self.train_loader)
+        self.prefetcher = DataPrefetcher(self.train_loader, not self.args.cpu)
         # max_iter means iters per epoch
         self.max_iter = len(self.train_loader)
 

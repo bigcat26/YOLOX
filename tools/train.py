@@ -20,6 +20,9 @@ def make_parser():
     parser.add_argument("-expn", "--experiment-name", type=str, default=None)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
 
+    # cpu training 
+    parser.add_argument("-cpu", "--cpu", type=bool, default=not torch.cuda.is_available(), help="use cpu training")
+
     # distributed
     parser.add_argument(
         "--dist-backend", default="nccl", type=str, help="distributed backend"
