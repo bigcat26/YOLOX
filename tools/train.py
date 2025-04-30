@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # Copyright (c) Megvii, Inc. and its affiliates.
-
+import os
 import argparse
 import random
 import warnings
@@ -117,6 +117,9 @@ def main(exp: Exp, args):
     configure_omp()
     cudnn.benchmark = True
 
+    print(f"LOCAL_RANK: {os.environ.get('LOCAL_RANK')}")
+    print(f"RANK: {os.environ.get('RANK')}")
+    print(f"WORLD_SIZE: {os.environ.get('WORLD_SIZE')}")
     trainer = exp.get_trainer(args)
     trainer.train()
 

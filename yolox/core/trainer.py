@@ -47,13 +47,11 @@ class Trainer:
         self.scaler = torch.cuda.amp.GradScaler(enabled=args.fp16)
         self.is_distributed = get_world_size() > 1
         if args.cpu:
-            self.rank = 0
-            self.local_rank = 0
             self.device = "cpu"
         else:
-            self.rank = get_rank()
-            self.local_rank = get_local_rank()
             self.device = "cuda:{}".format(self.local_rank)
+        self.rank = get_rank()
+        self.local_rank = get_local_rank()
         self.use_model_ema = exp.ema
         self.save_history_ckpt = exp.save_history_ckpt
 
